@@ -12,6 +12,7 @@ LABELERS = {
         "id": "did:plc:bookwatcher0000000000001",
         "name": "BookWatcher",
         "short": "BW",
+        "emoji": "📚",
         "description": "Identifies books in posts and surfaces reading list & library integrations.",
         "color": "#6366f1",       # indigo
         "bg": "#eef2ff",
@@ -22,6 +23,7 @@ LABELERS = {
         "id": "did:plc:openlibrary000000000001",
         "name": "OpenLibrary",
         "short": "OL",
+        "emoji": "📖",
         "description": "Links posts to Open Library records.",
         "color": "#0ea5e9",       # sky blue
         "bg": "#e0f2fe",
@@ -32,6 +34,7 @@ LABELERS = {
         "id": "did:plc:scholarwatch000000000001",
         "name": "ScholarWatch",
         "short": "SW",
+        "emoji": "🔬",
         "description": "Detects DOIs and surfaces academic paper metadata.",
         "color": "#10b981",       # emerald
         "bg": "#d1fae5",
@@ -58,6 +61,14 @@ BOOKS = {
         "genres": ["Science Fiction", "Fantasy", "Dystopian"],
         "openlibrary_id": "OL26461540M",
         "goodreads_id": "19161852",
+        "avg_rating": 4.3,
+        "ratings_count": 189452,
+        "readers_count": 47823,
+        "lists_count": 312,
+        "review_snippets": [
+            {"text": "The second-person narration shouldn't work but it absolutely does. One of the most original fantasy novels I've ever read.", "rating": 5},
+            {"text": "Dense and rewarding. Jemisin rewards careful readers with layers of meaning that only become clear later.", "rating": 4},
+        ],
     },
     "9780525559474": {
         "isbn": "9780525559474",
@@ -72,6 +83,14 @@ BOOKS = {
         "genres": ["Science Fiction", "Climate Fiction", "Political Fiction"],
         "openlibrary_id": "OL29555375M",
         "goodreads_id": "50998056",
+        "avg_rating": 3.9,
+        "ratings_count": 54231,
+        "readers_count": 31204,
+        "lists_count": 187,
+        "review_snippets": [
+            {"text": "Essential reading for anyone who cares about climate. Not a fun read, but an important one.", "rating": 4},
+            {"text": "The mosaic structure is fascinating — almost like a documentary novel. Some chapters hit you like a freight train.", "rating": 5},
+        ],
     },
     "9780374533557": {
         "isbn": "9780374533557",
@@ -86,6 +105,14 @@ BOOKS = {
         "genres": ["Psychology", "Behavioral Economics", "Non-fiction"],
         "openlibrary_id": "OL25671095M",
         "goodreads_id": "11468377",
+        "avg_rating": 4.2,
+        "ratings_count": 412893,
+        "readers_count": 118547,
+        "lists_count": 891,
+        "review_snippets": [
+            {"text": "Kahneman writes about cognitive biases so clearly that you immediately recognize them in yourself. A bit long but worth it.", "rating": 4},
+            {"text": "Changed how I think about thinking. The Linda problem alone is worth the price of admission.", "rating": 5},
+        ],
     },
     "9780062316097": {
         "isbn": "9780062316097",
@@ -100,6 +127,14 @@ BOOKS = {
         "genres": ["History", "Anthropology", "Non-fiction"],
         "openlibrary_id": "OL26207120M",
         "goodreads_id": "23692271",
+        "avg_rating": 4.1,
+        "ratings_count": 534021,
+        "readers_count": 203441,
+        "lists_count": 1204,
+        "review_snippets": [
+            {"text": "Sweeping and provocative. Harari simplifies sometimes, but it's in service of seeing the big picture.", "rating": 4},
+            {"text": "The chapter on money and collective myths changed my entire framework. Finished it in a weekend.", "rating": 5},
+        ],
     },
     "9781250301697": {
         "isbn": "9781250301697",
@@ -114,6 +149,14 @@ BOOKS = {
         "genres": ["Science Fiction", "Alternate History", "Space Opera"],
         "openlibrary_id": "OL27165450M",
         "goodreads_id": "33080122",
+        "avg_rating": 4.4,
+        "ratings_count": 41203,
+        "readers_count": 22918,
+        "lists_count": 145,
+        "review_snippets": [
+            {"text": "Kowal nails the period detail while making it feel completely relevant to today. Elma is such a great protagonist.", "rating": 5},
+            {"text": "The tension between the space race urgency and the sexism Elma faces makes for a genuinely gripping read.", "rating": 4},
+        ],
     },
 }
 
@@ -130,6 +173,15 @@ PAPERS = {
         "venue": "FAccT '21",
         "abstract": "The authors question whether the trend toward ever larger language models in NLP is actually beneficial, examining environmental costs, financial cost, data issues, and risk of harm.",
         "url": "https://dl.acm.org/doi/10.1145/3442188.3445922",
+        "citation_count": 2847,
+        "influential_citations": 341,
+        "open_access": True,
+        "tldr": "Questions whether scaling LLMs without regard for cost, data quality, and societal risk produces benefits that outweigh the harms.",
+        "related": [
+            {"title": "Model Cards for Model Reporting", "authors": "Mitchell et al.", "year": 2019, "citations": 1823},
+            {"title": "Datasheets for Datasets", "authors": "Gebru et al.", "year": 2021, "citations": 1456},
+            {"title": "Gender Shades: Intersectional Accuracy Disparities in Commercial Gender Classification", "authors": "Buolamwini & Gebru", "year": 2018, "citations": 2103},
+        ],
     },
     "10.48550/arxiv.2005.14165": {
         "doi": "10.48550/arxiv.2005.14165",
@@ -139,6 +191,15 @@ PAPERS = {
         "venue": "NeurIPS 2020",
         "abstract": "GPT-3 demonstrates that scaling up language models greatly improves task-agnostic, few-shot performance, sometimes even reaching competitiveness with prior state-of-the-art fine-tuning approaches.",
         "url": "https://arxiv.org/abs/2005.14165",
+        "citation_count": 21483,
+        "influential_citations": 4812,
+        "open_access": True,
+        "tldr": "Shows that 175B-parameter language models can perform few-shot learning across a wide range of NLP tasks without gradient updates.",
+        "related": [
+            {"title": "Attention Is All You Need", "authors": "Vaswani et al.", "year": 2017, "citations": 47291},
+            {"title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding", "authors": "Devlin et al.", "year": 2019, "citations": 31847},
+            {"title": "Scaling Laws for Neural Language Models", "authors": "Kaplan et al.", "year": 2020, "citations": 4203},
+        ],
     },
 }
 

@@ -82,8 +82,8 @@
            href="{{ label.action_url }}"
            style="background: {{ lb.bg }}; color: {{ lb.color }}; border-color: {{ lb.color }}22"
            data-tooltip="View {{ lb.name }} details">
-          <span class="label-badge-icon" style="background: {{ lb.color }}; color: white">
-            {{ lb.short[0] }}
+          <span class="label-badge-icon" style="background: {{ lb.color }}">
+            {{ lb.emoji }}
           </span>
           {{ lb.name }}
           <span class="label-badge-explain">· {% if label.isbn %}ISBN{% else %}DOI{% endif %}</span>
@@ -109,7 +109,7 @@
       {% for key, labeler in labelers.items() %}
       <div class="labeler-list-item">
         <div class="labeler-badge-large" style="background: {{ labeler.color }}">
-          {{ labeler.short }}
+          {{ labeler.emoji }}
         </div>
         <div class="labeler-info">
           <strong>{{ labeler.name }}</strong>
