@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ labeler.name }} — Label Detail</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="detail-layout">
+
+  <a class="back-link" href="/">← Back to feed</a>
+
+  <!-- Labeler header -->
+  <div class="detail-header" style="background: {{ labeler.bg }}; border: 1px solid {{ labeler.color }}33">
+    <div class="detail-labeler-icon" style="background: {{ labeler.color }}">
+      {{ labeler.short }}
+    </div>
+    <div>
+      <div class="detail-labeler-name" style="color: {{ labeler.color }}">{{ labeler.name }}</div>
+      <div class="detail-labeler-desc">{{ labeler.description }}</div>
+    </div>
+  </div>
+
+  <!-- Protocol label wire format (educational) -->
+  <div class="detail-section">
+    <h2>AT Protocol label</h2>
+    <div style="margin-bottom: 10px">
+      <div class="proto-label">
+        <span class="proto-key">src:</span>
+        <span class="proto-val">"{{ labeler.id }}"</span>
+      </div>
+      <div class="proto-label">
+        <span class="proto-key">val:</span>
+        <span class="proto-val">"{{ label.val }}"</span>
+      </div>
+      <div class="proto-label">
+        <span class="proto-key">uri:</span>
+        <span class="proto-val">"at://{{ post.author.did }}/app.bsky.feed.post/{{ post.id }}"</span>
+      </div>
+    </div>
+    <p style="font-size:13px; color: var(--text-secondary); line-height:1.6">
+      The label itself is just a flat token. All the richness below comes from following the <strong>action URL</strong> back to {{ labeler.name }}'s service — not from the label value.
+    </p>
+  </div>
+
+  <!-- Original post -->
+  <div class="detail-section">
+    <h2>Labeled post</h2>
+    <div class="original-post">
+      <div class="op-header">
+        <div class="op-avatar" data-avatar-seed="{{ post.author.avatar_seed }}" style="background: #6366f1">
+          {{ post.author.display_name[:2] | upper }}
+        </div>
+        <div>
+          <div class="op-name">{{ post.author.display_name }}</div>
+          <div class="op-handle">@{{ post.author.handle }}</div>
+        </div>
+      </div>
+      <div class="op-text">{{ post.text }}</div>
+    </div>
+  </div>
+
+  <!-- Book details (BookWatcher / OpenLibrary) -->
+  {% if book %}
+  <div class="detail-section">
+    <h2>Book identified</h2>
+
+    <div class="book-display">
+      <div class="book-cover"
+           style="background: {{ book.cover_color }}; color: {{ book.cover_text_color }}">
+        {{ book.title }}
+      </div>
+      <div class="book-meta">
+        <div class="book-title">{{ book.title }}</div>
+        <div class="book-author">{{ book.author }}</div>
+        <div class="book-year-pub">{{ book.year }} · {{ book.publisher }} · {{ book.pages }} pages</div>
+        <div class="book-genres">
+          {% for g in book.genres %}
+          <span class="genre-pill">{{ g }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="isbn-chip">
+      📖 ISBN {{ label.isbn }}
+    </div>
+
+    <div class="book-description">{{ book.description }}</div>
+
+    {% if labeler.id == labelers.bookwatcher.id %}
+    <div class="actions-grid">
+      <button class="action-card primary">
+        <span class="action-icon">📚</span>
+        <span class="action-label">Add to Reading List</span>
+        <span class="action-sublabel">Save for later</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">🏛️</span>
+        <span class="action-label">Find in Library</span>
+        <span class="action-sublabel">Check local availability</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">🛒</span>
+        <span class="action-label">Buy a Copy</span>
+        <span class="action-sublabel">Bookshop.org</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">⭐</span>
+        <span class="action-label">Rate this Book</span>
+        <span class="action-sublabel">Log your read</span>
+      </button>
+    </div>
+    {% endif %}
+
+    {% if labeler.id == labelers.openlibrary.id %}
+    <div class="actions-grid">
+      <button class="action-card primary">
+        <span class="action-icon">🌐</span>
+        <span class="action-label">Open Library</span>
+        <span class="action-sublabel">OL{{ book.openlibrary_id }}</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">📥</span>
+        <span class="action-label">Borrow Online</span>
+        <span class="action-sublabel">Free with account</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">📝</span>
+        <span class="action-label">Edit Record</span>
+        <span class="action-sublabel">Contribute to OL</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">🔗</span>
+        <span class="action-label">Cite This Book</span>
+        <span class="action-sublabel">MLA / APA / Chicago</span>
+      </button>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Paper details (ScholarWatch) -->
+  {% if paper %}
+  <div class="detail-section">
+    <h2>Paper identified</h2>
+
+    <div class="paper-title">{{ paper.title }}</div>
+    <div class="paper-authors">{{ paper.authors | join(", ") }}</div>
+    <div class="paper-venue">{{ paper.venue }}, {{ paper.year }}</div>
+
+    <div class="isbn-chip">🔬 doi:{{ paper.doi }}</div>
+
+    <div class="paper-abstract">{{ paper.abstract }}</div>
+
+    <div class="actions-grid" style="margin-top: 16px">
+      <button class="action-card primary">
+        <span class="action-icon">🔗</span>
+        <span class="action-label">Read Paper</span>
+        <span class="action-sublabel">{{ paper.venue }}</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">📋</span>
+        <span class="action-label">Copy Citation</span>
+        <span class="action-sublabel">BibTeX / APA</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">🔖</span>
+        <span class="action-label">Save to Library</span>
+        <span class="action-sublabel">Zotero / Mendeley</span>
+      </button>
+      <button class="action-card">
+        <span class="action-icon">🧵</span>
+        <span class="action-label">Related Papers</span>
+        <span class="action-sublabel">Semantic Scholar</span>
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Other labelers for this post -->
+  {% set other_labels = [] %}
+  {% for l in post.labels %}{% if l.labeler != label.labeler %}{% set _ = other_labels.append(l) %}{% endif %}{% endfor %}
+
+  {% if other_labels %}
+  <div class="detail-section">
+    <h2>Also labeled by</h2>
+    <div class="other-labelers">
+      {% for ol in other_labels %}
+      {% set olb = labelers[ol.labeler] %}
+      <a class="other-labeler-chip"
+         href="{{ ol.action_url }}"
+         style="background: {{ olb.bg }}; color: {{ olb.color }}; border: 1px solid {{ olb.color }}33">
+        <span style="font-size:14px">{{ olb.short }}</span>
+        {{ olb.name }}
+      </a>
+      {% endfor %}
+    </div>
+    <p style="font-size:12px; color: var(--text-muted); margin-top: 10px; line-height:1.5">
+      Multiple independent labelers can annotate the same post. Clients choose which labelers to subscribe to and how to surface them.
+    </p>
+  </div>
+  {% endif %}
+
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
