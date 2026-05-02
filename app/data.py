@@ -391,8 +391,8 @@ def apply_labels(posts: list[dict]) -> list[dict]:
             if book:
                 post_id = post["id"]
                 labels.append({
-                    "labeler": "bookwatcher",
-                    "val": "bookwatcher",
+                    "labeler": "",
+                    "val": "bookwatcher-book",
                     "isbn": isbn,
                     "action_url": f"/labeler/bookwatcher/post/{post_id}",
                 })
@@ -443,7 +443,7 @@ def get_label_detail(labeler_id: str, post_id: str) -> dict | None:
 
     detail = {"post": post, "labeler": labeler, "label": label}
 
-    if labeler_id in ("bookwatcher", "openlibrary"):
+    if labeler_id in ("bookwatcher-book", "openlibrary"):
         book = BOOKS.get(label.get("isbn", ""))
         detail["book"] = book
 

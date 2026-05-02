@@ -6,9 +6,9 @@
 
 ## The scenario
 
-Someone posts on Bluesky about a book they're reading. They mention the title, maybe include the ISBN out of habit or enthusiasm. They're not thinking about labelers — they're just talking about a book.
+Someone posts on Bluesky about a book they're reading. They mention the title or link to a page about it. They're not thinking about labelers — they're just talking about a book.
 
-Behind the scenes, a labeler service called **BookWatcher** is watching the firehose for posts containing ISBNs. It finds this post, looks up the ISBN in its metadata store, confirms it's a real book it knows about, and applies a label to the post. The label is a flat token: `bookwatcher`. Nothing about the book title is in the label value — that would violate the AT Protocol's guidance against hierarchical label semantics.
+Behind the scenes, a labeler service called **BookWatcher** is watching the firehose for posts that are about books. It finds this post, maps it to a book record in its metadata store, confirms it's a real book it knows about, and applies a label to the post. The label is a flat token: `bookwatcherbook`. Nothing about the book title is in the label value — that would go against the [AT Protocol's guidance against hierarchical label semantics](https://atproto.com/specs/label#value).
 
 What the label *does* carry is an action URL, pointing back to BookWatcher's own service with the post URI in scope. Any client that understands the label can follow that URL to get everything BookWatcher knows: title, author, cover art, genre, and a set of actions specific to books.
 
@@ -16,11 +16,10 @@ What the label *does* carry is an action URL, pointing back to BookWatcher's own
 
 ## What the user sees
 
-**In the feed:** A small colored badge appears below the post text. In this prototype there are two labeler badges on most book posts — one for BookWatcher (indigo) and one for OpenLibrary (sky blue). The badges are unobtrusive but clickable.
+**In the feed:** A small colored badge appears below the post text (currently in BlueSky labels appear above post text and on user profiles). In this prototype there are two labeler badges on most book posts — one for BookWatcher (indigo) and one for OpenLibrary (sky blue). The badges are unobtrusive but clickable.
 
-**Clicking a badge** takes you to that labeler's detail view for that post. The page shows:
+**Clicking a badge** takes you to that labeler's own website, with a detail view relevant to that post. The page shows:
 
-- The label's wire format (src, val, uri) — so the pattern is legible, not hidden
 - The original post in context
 - The book metadata the labeler surfaced (title, author, cover, description, genres)
 - A grid of actions specific to that labeler
@@ -29,7 +28,7 @@ What the label *does* carry is an action URL, pointing back to BookWatcher's own
 
 ## Two labelers, one post
 
-The same post can simultaneously carry a `bookwatcher` label and an `openlibrary` label. They agree on the ISBN; they disagree on what to do with it.
+The same post can simultaneously carry a `bookwatcher-book` label and an `openlibrary` label. In the general feed-reading AppView, labelers have no relationship to each other. If it suits a user to run two labelers concerned with the same subject domain, they just do it.
 
 **BookWatcher** thinks in terms of personal reading: add to list, find in a local library, buy from an indie bookstore, log a rating.
 
@@ -41,19 +40,6 @@ This is the analog to Wikipedia's book link feature, where editors can configure
 
 ---
 
-## The identifier: ISBN
-
-ISBNs are well-suited to this pattern:
-
-- They're globally unique and stable
-- They appear naturally in posts (people quote them, share them, paste them from Goodreads)
-- Both ISBN-10 and ISBN-13 forms are common; the labeler normalises to ISBN-13
-- The lookup is deterministic: same ISBN → same book → same label
-
-The labeler's regex looks for bare 13-digit or 10-digit numbers preceded optionally by `ISBN:` or `ISBN `. False positives are possible (a 13-digit number that isn't an ISBN), but for a prototype this is fine — in production you'd validate the check digit.
-
----
-
 ## The label wire format
 
 What actually exists on the AT Protocol network for a labeled post looks like this:
@@ -61,7 +47,7 @@ What actually exists on the AT Protocol network for a labeled post looks like th
 ```
 {
   src: "did:plc:bookwatcher0000000000001",
-  val: "bookwatcher",
+  val: "bookwatcher-book",
   uri: "at://did:plc:alice.../app.bsky.feed.post/3kvzgb2qfzk2e",
   cts: "2026-05-02T12:34:56Z"
 }
@@ -73,10 +59,20 @@ The action URL is a convention proposed on top of this — the labeler publishes
 
 ---
 
+## TODOs
+
+* Change the examples to not use explicit IDs in the UX, but rather because they have links to pages that are "about" subjects of interest to the labeler. It may not need demonstrating in the prototype UX, but the idea is the labeler use more sophisticated methods than just the bare ISBN or DOI awkwardly jammed in the post.
+* update the current labeler page to support a lightweight AppView. Rather than being a full-scale microblogger clone, users login with an atmosphere count to use personalized services.
+  * They could ask the labeler app to scan their feed(s) for posts that it knows are, for example, about books. It could provide summary services like [Sill.social](https://sill.social), or 'automatically add books mentioned by particular accounts to my "want to read" list'
+  * They could limit searches or prioritize results based on what "people I follow" (or some more trusted subset) have posted, like Foursquare's old "filter by places your friends have checked in at"
+* Are there posting use cases? A person could explicitly tag the book as part of a post, maybe removing the need to have the ISBN directly
+
 ## Open questions
 
-- **Discovery:** How does a user find out about BookWatcher in the first place? Do they subscribe to it explicitly, or does the client surface it opportunistically? This prototype assumes subscription, but opportunistic surfacing is more interesting and harder.
-- **False positives and trust:** What happens when BookWatcher labels a post that contains a 13-digit number that isn't a book? The label still appears. The client could show it as lower-confidence, or require a human-verified tier.
-- **Labeler competition:** If BookWatcher and OpenLibrary both label the same post, who gets primary placement in the feed badge? The client decides, but it needs a policy. Alphabetical, subscription order, user preference?
-- **User agency:** Should a user be able to say "don't label my posts" per labeler? The AT Protocol has an opt-out mechanism for labels, but the UX for that isn't shown here.
+- **Discovery:** How does a user find out about any given labeler service? They are still kind of esoteric to casual users.
+  - Generally worth some thought, but there's a lot more to figure out before this is ready for mass adoption.
+- **False positives and trust:** What happens when BookWatcher labels a post that contains a 13-digit number that isn't a book? The label still appears.
+  - "report this post" feature built in to labeling should provide a mechanism
+- User agency:** Should a user be able to say "don't label my posts" per labeler? The AT Protocol has an opt-out mechanism for labels, but the UX for that isn't shown here.
+  - Important to track. As much as the protocol has
 - **Rich ISBN variants:** Some books have multiple ISBNs (hardcover, paperback, different editions). The labeler currently treats each ISBN as a distinct lookup. Ideally it would resolve to a canonical work record and surface edition info separately.

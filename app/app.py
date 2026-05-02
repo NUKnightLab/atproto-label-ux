@@ -11,7 +11,7 @@ def index():
 
 
 _LABELER_TEMPLATES = {
-    "bookwatcher": "bookwatcher_detail.html",
+    "bookwatcher-book": "bookwatcher_detail.html",
     "openlibrary": "openlibrary_detail.html",
     "scholarwatch": "scholarwatch_detail.html",
 }
