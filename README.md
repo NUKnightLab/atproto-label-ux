@@ -8,14 +8,12 @@ also an experiment with Claude as sketching partner
 
 ## For now
 
-This is a little flask app that you can run to see some of these ideas.
+This is a SvelteKit app that you can run to see some of these ideas.
 
 ```
-uv sync
-uv run serve
+npm install
+npm run dev
 ```
-
-Maybe overkill, but that's where we landed.
 
 ## Next thoughts
 

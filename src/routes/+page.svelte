@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  import { avatarColor, initials, relativeTime } from '$lib/utils.js';
+  let { data } = $props();
+</script>
+
+<svelte:head>
   <title>ATProto Label UX — Feed</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+</svelte:head>
 
 <div class="layout">
 
@@ -37,12 +36,12 @@
 
     <div class="sidebar-section">
       <div class="sidebar-section-title">Active Labelers</div>
-      {% for key, labeler in labelers.items() %}
+      {#each Object.values(data.labelers) as labeler}
       <div class="labeler-nav-item">
-        <div class="labeler-dot" style="background: {{ labeler.color }}"></div>
-        {{ labeler.name }}
+        <div class="labeler-dot" style="background: {labeler.color}"></div>
+        {labeler.name}
       </div>
-      {% endfor %}
+      {/each}
     </div>
   </aside>
 
@@ -57,66 +56,63 @@
       <strong>Prototype demo:</strong> Posts below are mock data. Posts containing ISBNs or DOIs have been labeled by mock labeler services — look for the colored badges. Clicking a badge opens the labeler's enriched view for that post.
     </div>
 
-    {% for post in posts %}
+    {#each data.posts as post}
     <article class="post-card">
       <div class="post-header">
-        <div class="avatar"
-             data-avatar-seed="{{ post.author.avatar_seed }}"
-             style="background: #6366f1">
-          {{ post.author.display_name[:2] | upper }}
+        <div class="avatar" style="background: {avatarColor(post.author.avatar_seed)}">
+          {initials(post.author.display_name)}
         </div>
         <div class="author-info">
-          <div class="author-name">{{ post.author.display_name }}</div>
-          <div class="author-handle">@{{ post.author.handle }}</div>
+          <div class="author-name">{post.author.display_name}</div>
+          <div class="author-handle">@{post.author.handle}</div>
         </div>
-        <div class="post-time" data-created-at="{{ post.created_at }}">{{ post.created_at }}</div>
+        <div class="post-time">{relativeTime(post.created_at)}</div>
       </div>
 
-      <div class="post-text">{{ post.text }}</div>
+      <div class="post-text">{post.text}</div>
 
-      {% if post.labels %}
+      {#if post.labels.length > 0}
       <div class="labels-row">
-        {% for label in post.labels %}
-        {% set lb = labelers[label.labeler] %}
+        {#each post.labels as label}
+        {@const lb = data.labelers[label.labeler]}
         <a class="label-badge"
-           href="{{ label.action_url }}"
-           style="background: {{ lb.bg }}; color: {{ lb.color }}; border-color: {{ lb.color }}22"
-           data-tooltip="View {{ lb.name }} details">
-          <span class="label-badge-icon" style="background: {{ lb.color }}">
-            {{ lb.emoji }}
+           href={label.action_url}
+           style="background: {lb.bg}; color: {lb.color}; border-color: {lb.color}22"
+           title="View {lb.name} details">
+          <span class="label-badge-icon" style="background: {lb.color}">
+            {lb.emoji}
           </span>
-          {{ lb.name }}
-          <span class="label-badge-explain">· {% if label.isbn %}ISBN{% else %}DOI{% endif %}</span>
+          {lb.name}
         </a>
-        {% endfor %}
+        {/each}
       </div>
-      {% endif %}
+      {/if}
 
       <div class="post-actions">
-        <button class="action-btn">💬 {{ post.reply_count }}</button>
-        <button class="action-btn">🔁 {{ post.repost_count }}</button>
-        <button class="action-btn">❤️ {{ post.like_count }}</button>
+        <button class="action-btn">💬 {post.reply_count}</button>
+        <button class="action-btn">🔁 {post.repost_count}</button>
+        <button class="action-btn">❤️ {post.like_count}</button>
         <button class="action-btn">⋯</button>
       </div>
     </article>
-    {% endfor %}
+    {/each}
   </main>
 
   <!-- Right panel -->
   <aside class="right-panel">
     <div class="panel-card">
       <h3>Labelers in this feed</h3>
-      {% for key, labeler in labelers.items() %}
+      {#each Object.values(data.labelers) as labeler}
       <div class="labeler-list-item">
-        <div class="labeler-badge-large" style="background: {{ labeler.color }}">
-          {{ labeler.emoji }}
+        <div class="labeler-badge-large" style="background: {labeler.color}">
+          {labeler.emoji}
         </div>
         <div class="labeler-info">
-          <strong>{{ labeler.name }}</strong>
-          <span>{{ labeler.description }}</span>
+          <strong>{labeler.name}</strong>
+          <span>{labeler.description}</span>
         </div>
       </div>
-      {% endfor %}
+      {/each}
     </div>
 
     <div class="panel-card">
@@ -128,7 +124,3 @@
   </aside>
 
 </div>
-
-<script src="/static/js/main.js"></script>
-</body>
-</html>

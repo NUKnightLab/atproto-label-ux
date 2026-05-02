@@ -1,20 +1,6 @@
 # Roadmap
 
 This document captures the near-term and speculative next steps for the AT Protocol label UX prototype. It's meant to be a stable reference across sessions — update it as priorities shift.
-
----
-## Phase 0: Convert it to sveltekit
-
-I should have told Claude to do it that way from the start. It's almost certainly easier to deploy that to some web hosting than Flask is, and if there's any audience who want to fool with the demo itself, JS is lower overhead and wider reach.
-
-## Phase 1: Improve the current demo
-
-The feed and label detail views are running. These changes make the existing demo more convincing before adding new concepts.
-
-- **More natural post text.** The current examples lean on bare ISBNs and DOIs visibly in the post, which looks awkward. Rewrite the mock posts so they read like real Bluesky posts — people mentioning a book title or linking to a page about it. The labeler infers the book behind the scenes; the identifier doesn't need to appear in the post text at all.
-
-- **Visual and UX polish.** Anything that makes the feed feel more like a real client and less like a demo scaffold. Since labelers are independent, we should remove the detail that cu
-
 ---
 
 ## Phase 2: Lightweight labeler AppView
