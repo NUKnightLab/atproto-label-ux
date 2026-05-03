@@ -1,11 +1,19 @@
 <script>
-  import { avatarColor, initials, relativeTime } from '$lib/utils.js';
+  import { avatarColor, initials, relativeTime, currentUser } from '$lib/utils.js';
+  import { SketchBanner } from '$lib/sketch';
+  import { sketchConfig } from '$lib/sketchConfig';
   let { data } = $props();
 </script>
 
 <svelte:head>
-  <title>ATProto Label UX — Feed</title>
+  <title>Skyline Feed - {sketchConfig.title}</title>
 </svelte:head>
+
+<SketchBanner sketch={sketchConfig}>
+  {#snippet thisPage()}
+    <p>The Skyline feed shows mock Bluesky posts. Posts about books or academic papers have been automatically labeled by mock labeler services — look for the colored badges beneath each post. Clicking a badge opens the labeler's enriched view.</p>
+  {/snippet}
+</SketchBanner>
 
 <div class="layout">
 
@@ -43,6 +51,14 @@
       </div>
       {/each}
     </div>
+
+    <div class="sidebar-user">
+      <div class="avatar sidebar-user-avatar" style="background: {avatarColor(currentUser.avatar_seed)}">{initials(currentUser.display_name)}</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{currentUser.display_name}</div>
+        <div class="sidebar-user-handle">@{currentUser.handle}</div>
+      </div>
+    </div>
   </aside>
 
   <!-- Main feed -->
@@ -63,7 +79,11 @@
           {initials(post.author.display_name)}
         </div>
         <div class="author-info">
+          {#if data.authorProfiles[post.author.did]}
+          <a class="author-name author-name-link" href="/profile/{post.author.handle}">{post.author.display_name}</a>
+          {:else}
           <div class="author-name">{post.author.display_name}</div>
+          {/if}
           <div class="author-handle">@{post.author.handle}</div>
         </div>
         <div class="post-time">{relativeTime(post.created_at)}</div>
@@ -82,7 +102,7 @@
           <span class="label-badge-icon" style="background: {lb.color}">
             {lb.emoji}
           </span>
-          {lb.name}
+          {label.val}
         </a>
         {/each}
       </div>
@@ -100,6 +120,17 @@
 
   <!-- Right panel -->
   <aside class="right-panel">
+
+        <div class="panel-card">
+      <h3>About labels</h3>
+      <p>
+        Labels in AT Protocol were designed to support content moderation. What if we thought bigger?
+        </p>
+        <p>
+          This demo explores the premise that a simple extension to the current model could enable a wide variety of useful services.
+      </p>
+    </div>
+
     <div class="panel-card">
       <h3>Labelers in this feed</h3>
       {#each Object.values(data.labelers) as labeler}
@@ -114,13 +145,16 @@
       </div>
       {/each}
     </div>
-
-    <div class="panel-card">
-      <h3>About labels</h3>
-      <p style="font-size:13px; color: var(--text-secondary); line-height:1.6">
-        Labels in AT Protocol are flat tokens applied by independent services. This demo shows how a label can carry an <strong>action URL</strong> pointing back to rich metadata — without packing structure into the label value itself.
-      </p>
-    </div>
   </aside>
 
 </div>
+
+<style>
+  .author-name-link {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .author-name-link:hover { text-decoration: underline; }
+</style>

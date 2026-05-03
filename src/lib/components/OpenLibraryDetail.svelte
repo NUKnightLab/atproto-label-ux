@@ -1,15 +1,24 @@
 <script>
-  import { avatarColor, initials } from '$lib/utils.js';
+  import { avatarColor, initials, currentUser } from '$lib/utils.js';
+  import { SketchBanner, DesignAnnotation } from '$lib/sketch';
+  import { sketchConfig } from '$lib/sketchConfig';
   let { data } = $props();
 
-  const { book, post, labeler, label, labelers, labeler_id } = data;
-  const otherLabels = post.labels.filter(l => l.labeler !== labeler_id);
+  const { book, post, labeler, label, labeler_id } = data;
 </script>
 
 <svelte:head>
   <title>{book.title} ({book.year} edition) | Open Library</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
 </svelte:head>
+
+<SketchBanner sketch={sketchConfig} showBack={true} backLabel="← Skyline">
+  {#snippet thisPage()}
+    <p>Open Library's record for this edition of <strong>{book.title}</strong>.</p>
+    <p>Arrived by following an AT Protocol <strong>action URL</strong> embedded in an <code>openlibrary</code> label — the label identified an ISBN in the post; this page was generated from that ISBN.</p>
+    <p><code>src: {labeler.id}</code> · <code>val: {label.val}</code> · <code>isbn: {label.isbn}</code></p>
+  {/snippet}
+</SketchBanner>
 
 <!-- Internet Archive top strip -->
 <div class="ia-strip">
@@ -20,7 +29,10 @@
   <a href="#">Archive.org</a>
   <a href="#">Software</a>
   <a href="#">Movies</a>
-  <span style="margin-left: auto"><a href="#">Log In</a> · <a href="#">Create Account</a></span>
+  <span class="ia-current-user" style="margin-left: auto">
+    <span class="ia-user-avatar" style="background: {avatarColor(currentUser.avatar_seed)}">{initials(currentUser.display_name)}</span>
+    <span class="ia-user-handle">@{currentUser.handle}</span>
+  </span>
 </div>
 
 <!-- Open Library nav -->
@@ -46,7 +58,6 @@
 
   <!-- Breadcrumb -->
   <div class="ol-breadcrumb">
-    <a href="/">← Back to feed</a> ·
     <a href="#">Books</a> ›
     {#each book.genres.slice(0, 1) as g}<a href="#">{g}</a>{/each} ›
     {book.title}
@@ -134,20 +145,6 @@
     <div class="ol-post-text">{post.text}</div>
   </div>
 
-  <!-- Other labelers -->
-  {#if otherLabels.length > 0}
-  <div class="ol-other">
-    <div class="ol-post-section-title">Also labeled by</div>
-    <div class="ol-other-chips">
-      {#each otherLabels as ol}
-      {@const olb = labelers[ol.labeler]}
-      <a class="ol-other-chip" href={ol.action_url} style="background: {olb.bg}; color: {olb.color}; border: 1px solid {olb.color}33">
-        {olb.name}
-      </a>
-      {/each}
-    </div>
-  </div>
-  {/if}
 
   <div class="ol-footer">
     Open Library is an open, editable library catalog, building towards a web page for every book ever published.<br>
@@ -156,12 +153,11 @@
     <a href="#">Help</a> · <a href="#">Developers/API</a> · <a href="#">Contact</a>
   </div>
 
-  <div class="design-annotation">
-    <span class="annotation-label">📐 prototype annotation</span>
+  <!-- <DesignAnnotation>
     This page was reached by following an AT Protocol <strong>action URL</strong> embedded in a label — not a link the site itself generated.<br>
     <code>src: {labeler.id}</code> &nbsp;·&nbsp; <code>val: {label.val}</code> &nbsp;·&nbsp; <code>isbn: {label.isbn}</code><br>
     <code>uri: at://{post.author.did}/app.bsky.feed.post/{post.id}</code>
-  </div>
+  </DesignAnnotation> -->
 
 </div>
 
@@ -175,6 +171,9 @@
   .ia-logo { font-weight: 700; color: white; font-size: 12px; letter-spacing: .04em; }
   .ia-strip a { color: #888; }
   .ia-strip a:hover { color: white; text-decoration: none; }
+  .ia-current-user { display: flex; align-items: center; gap: 7px; }
+  .ia-user-avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: white; flex-shrink: 0; }
+  .ia-user-handle { color: #bbb; }
 
   .ol-nav { background: white; border-bottom: 2px solid #e57c1f; }
   .ol-nav-inner { max-width: 1020px; margin: 0 auto; padding: 0 20px; display: flex; align-items: stretch; }
@@ -251,7 +250,5 @@
 
   .ol-footer { text-align: center; font-size: 12px; color: #888; padding: 22px 0 14px; border-top: 1px solid #ddd; margin-top: 16px; line-height: 1.9; }
   .ol-footer a { color: #1a73a7; }
-  .design-annotation { margin-top: 24px; padding: 14px 18px; border: 1.5px dashed #cbd5e1; border-radius: 4px; background: #fefce8; font-size: 11.5px; color: #78716c; position: relative; line-height: 1.65; }
-  .annotation-label { position: absolute; top: -10px; left: 14px; background: #fefce8; padding: 0 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #a8a29e; }
-  .design-annotation code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; background: rgba(0,0,0,.07); padding: 1px 5px; border-radius: 2px; }
+
 </style>

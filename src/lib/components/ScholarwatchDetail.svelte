@@ -1,9 +1,10 @@
 <script>
-  import { avatarColor, initials } from '$lib/utils.js';
+  import { avatarColor, initials, currentUser } from '$lib/utils.js';
+  import { SketchBanner, DesignAnnotation } from '$lib/sketch';
+  import { sketchConfig } from '$lib/sketchConfig';
   let { data } = $props();
 
-  const { paper, post, labeler, label, labelers, labeler_id } = data;
-  const otherLabels = post.labels.filter(l => l.labeler !== labeler_id);
+  const { paper, post, labeler, label, labeler_id } = data;
 
   const firstAuthorLast = paper.authors[0].split(' ').pop().toLowerCase();
   const bibtexKey = `${firstAuthorLast}${paper.year}${paper.title.split(' ')[0].toLowerCase()}`;
@@ -14,6 +15,14 @@
   <title>{paper.title} | ScholarWatch</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔬</text></svg>" />
 </svelte:head>
+
+<SketchBanner sketch={sketchConfig} showBack={true} backLabel="← Skyline">
+  {#snippet thisPage()}
+    <p>ScholarWatch's enriched view for a post mentioning <strong>{paper.title}</strong>.</p>
+    <p>Arrived by following an AT Protocol <strong>action URL</strong> embedded in a <code>scholarwatch</code> label — the label identified a DOI in the post; this page was generated from that DOI.</p>
+    <p><code>src: {labeler.id}</code> · <code>val: {label.val}</code> · <code>doi: {paper.doi}</code></p>
+  {/snippet}
+</SketchBanner>
 
 <nav class="sw-nav">
   <div class="sw-logo"><span class="sw-logo-mark">◈</span> ScholarWatch</div>
@@ -27,8 +36,10 @@
     <div class="sw-nav-search">
       <input type="text" placeholder="Search 220M+ papers…" value="{paper.title.slice(0, 48)}…">
     </div>
-    <a class="sw-back-link" href="/">← feed</a>
-    <a class="sw-sign-in" href="#">Sign In</a>
+    <div class="sw-current-user">
+      <div class="sw-user-avatar" style="background: {avatarColor(currentUser.avatar_seed)}">{initials(currentUser.display_name)}</div>
+      <span class="sw-user-handle">@{currentUser.handle}</span>
+    </div>
   </div>
 </nav>
 
@@ -137,32 +148,17 @@
     </div>
   </div>
 
-  <!-- Other labelers -->
-  {#if otherLabels.length > 0}
-  <div class="sw-card">
-    <div class="sw-card-title">Also labeled by</div>
-    <div class="sw-other-chips">
-      {#each otherLabels as ol}
-      {@const olb = labelers[ol.labeler]}
-      <a class="sw-other-chip" href={ol.action_url} style="background: {olb.bg}; color: {olb.color}; border: 1px solid {olb.color}33">
-        {olb.name}
-      </a>
-      {/each}
-    </div>
-  </div>
-  {/if}
 
   <div class="sw-footer">
     <strong>ScholarWatch</strong> — Open Scholarly Graph · 220M+ papers indexed<br>
     <a href="#">About</a> · <a href="#">API</a> · <a href="#">Data</a> · <a href="#">Research</a> · <a href="#">Blog</a>
   </div>
 
-  <div class="design-annotation">
-    <span class="annotation-label">📐 prototype annotation</span>
+  <!-- <DesignAnnotation>
     This page was reached by following an AT Protocol <strong>action URL</strong> embedded in a label — not a link the site itself generated.<br>
     <code>src: {labeler.id}</code> &nbsp;·&nbsp; <code>val: {label.val}</code> &nbsp;·&nbsp; <code>doi: {paper.doi}</code><br>
     <code>uri: at://{post.author.did}/app.bsky.feed.post/{post.id}</code>
-  </div>
+  </DesignAnnotation> -->
 
 </div>
 
@@ -181,10 +177,9 @@
   .sw-nav-right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
   .sw-nav-search input { border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 12px; font-size: 13px; width: 260px; }
   .sw-nav-search input:focus { outline: 2px solid #10b981; border-color: #10b981; }
-  .sw-back-link { font-size: 13px; color: #9ca3af; }
-  .sw-back-link:hover { color: #374151; text-decoration: none; }
-  .sw-sign-in { font-size: 13px; padding: 6px 14px; border: 1px solid #d1d5db; border-radius: 6px; color: #374151; }
-  .sw-sign-in:hover { background: #f9fafb; text-decoration: none; }
+  .sw-current-user { display: flex; align-items: center; gap: 7px; }
+  .sw-user-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; }
+  .sw-user-handle { font-size: 12px; color: #6b7280; }
 
   .sw-container { max-width: 860px; margin: 0 auto; padding: 28px 20px; }
 
@@ -249,7 +244,5 @@
 
   .sw-footer { text-align: center; font-size: 12px; color: #9ca3af; padding: 24px 0 16px; border-top: 1px solid #e5e7eb; margin-top: 8px; line-height: 1.9; }
   .sw-footer a { color: #10b981; }
-  .design-annotation { margin-top: 28px; padding: 14px 18px; border: 1.5px dashed #cbd5e1; border-radius: 6px; background: #fefce8; font-size: 11.5px; color: #78716c; position: relative; line-height: 1.65; }
-  .annotation-label { position: absolute; top: -10px; left: 14px; background: #fefce8; padding: 0 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #a8a29e; }
-  .design-annotation code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; background: rgba(0,0,0,.07); padding: 1px 5px; border-radius: 3px; }
+
 </style>

@@ -77,6 +77,7 @@ The **frontend** should:
 - Show labeled posts with labeler badges
 - Allow clicking through to a labeler detail view (the “action URL” experience)
 - Ideally show a side-by-side or toggle view of the same post labeled by different services
+- each service should provide subtle, typical indication that the session is for a currently logged in user, who logged in with the same atmosphere account across all services. That is, replace the "login" button with this, that would probably be a name and avatar.
 
 ## Tech Stack Preferences
 

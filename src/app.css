@@ -1,3 +1,4 @@
+
 /* ---- Wiggle animation for unimplemented UI ---- */
 @keyframes wiggle {
   0%, 100% { transform: translateX(0) rotate(0deg); }
@@ -55,6 +56,8 @@ button { cursor: pointer; font: inherit; border: none; background: none; }
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
@@ -135,6 +138,18 @@ button { cursor: pointer; font: inherit; border: none; background: none; }
   border-radius: 50%;
   flex-shrink: 0;
 }
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 16px 12px 8px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-user-avatar { width: 34px; height: 34px; font-size: 12px; flex-shrink: 0; }
+.sidebar-user-name { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+.sidebar-user-handle { font-size: 12px; color: var(--text-secondary); }
 
 /* ---- Main feed column ---- */
 .main {
@@ -312,6 +327,12 @@ button { cursor: pointer; font: inherit; border: none; background: none; }
   margin-bottom: 12px;
 }
 
+.panel-card p {
+  font-size:13px; 
+  color: var(--text-secondary); 
+  line-height:1.6;
+  margin-bottom: .8rem;
+}
 .labeler-list-item {
   display: flex;
   align-items: flex-start;

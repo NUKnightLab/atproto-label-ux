@@ -8,11 +8,11 @@ export const LABELERS = {
     name: "BookWatcher",
     short: "BW",
     emoji: "📚",
-    description: "Identifies books in posts and surfaces reading list & library integrations.",
+    description: "Identifies books in posts and surfaces reading list & library integrations. Also verifies authors.",
     color: "#6366f1",
     bg: "#eef2ff",
-    label_value: "bookwatcher",
-    action_url_template: "/labeler/bookwatcher/post/{post_id}",
+    label_values: ["bookwatcher-book", "bookwatcher-author"],
+    action_url_template: "/labeler/bookwatcher?post={at_uri}&label={label_val}",
   },
   openlibrary: {
     id: "did:plc:openlibrary000000000001",
@@ -22,8 +22,8 @@ export const LABELERS = {
     description: "Links posts to Open Library records.",
     color: "#0ea5e9",
     bg: "#e0f2fe",
-    label_value: "openlibrary",
-    action_url_template: "/labeler/openlibrary/post/{post_id}",
+    label_values: ["openlibrary"],
+    action_url_template: "/labeler/openlibrary?post={at_uri}&label=openlibrary",
   },
   scholarwatch: {
     id: "did:plc:scholarwatch000000000001",
@@ -33,8 +33,8 @@ export const LABELERS = {
     description: "Detects DOIs and surfaces academic paper metadata.",
     color: "#10b981",
     bg: "#d1fae5",
-    label_value: "scholarwatch",
-    action_url_template: "/labeler/scholarwatch/post/{post_id}",
+    label_values: ["scholarwatch"],
+    action_url_template: "/labeler/scholarwatch?post={at_uri}&label=scholarwatch",
   },
 };
 
@@ -135,6 +135,7 @@ export const BOOKS = {
     isbn: "9781250301697",
     title: "The Calculating Stars",
     author: "Mary Robinette Kowal",
+    author_did: "did:plc:maryrobinette0000001",
     year: 2018,
     publisher: "Tor Books",
     cover_color: "#1a1a2e",
@@ -195,6 +196,24 @@ export const PAPERS = {
       { title: "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding", authors: "Devlin et al.", year: 2019, citations: 31847 },
       { title: "Scaling Laws for Neural Language Models", authors: "Kaplan et al.", year: 2020, citations: 4203 },
     ],
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Author profiles (keyed by DID) — for bookwatcher-author label
+// ---------------------------------------------------------------------------
+
+export const AUTHOR_PROFILES = {
+  "did:plc:maryrobinette0000001": {
+    did: "did:plc:maryrobinette0000001",
+    handle: "maryrobinette.bsky.social",
+    display_name: "Mary Robinette Kowal",
+    avatar_seed: "maryrobinette",
+    bio: "Hugo & Nebula award-winning author. SFWA President Emeritus. Puppeteer. The Lady Astronaut series. She/her.",
+    books: ["9781250301697"],
+    follower_count: 18420,
+    following_count: 892,
+    post_count: 3104,
   },
 };
 
@@ -293,17 +312,17 @@ const RAW_POSTS = [
   {
     id: "3kvzgb2qfzk2j",
     author: {
-      did: "did:plc:frank000000000000001",
-      handle: "frank.bsky.social",
-      display_name: "Frank Delacroix",
-      avatar_seed: "frank",
+      did: "did:plc:maryrobinette0000001",
+      handle: "maryrobinette.bsky.social",
+      display_name: "Mary Robinette Kowal",
+      avatar_seed: "maryrobinette",
     },
-    text: "Does anyone else read Bluesky on their phone while also having a book open? Currently alternating between doom-scrolling and The Calculating Stars. The 1950s space race but make it feminist. Brilliant.",
+    text: "Five years since The Calculating Stars came out and readers are still finding it. The Lady Astronaut series started as a short story — I never expected it to become four novels. If you're just discovering it: ISBN 9781250301697",
     isbn: "9781250301697",
     created_at: ago({ days: 1, hours: 3 }),
-    like_count: 78,
-    reply_count: 19,
-    repost_count: 22,
+    like_count: 312,
+    reply_count: 47,
+    repost_count: 89,
   },
   {
     id: "3kvzgb2qfzk2k",
@@ -385,15 +404,26 @@ export function extractDois(text) {
 }
 
 // ---------------------------------------------------------------------------
+// AT URI helpers
+// ---------------------------------------------------------------------------
+
+function postAtUri(authorDid, postId) {
+  return `at://${authorDid}/app.bsky.feed.post/${postId}`;
+}
+
+function profileAtUri(did) {
+  return `at://${did}`;
+}
+
+// ---------------------------------------------------------------------------
 // Labelling engine
 // ---------------------------------------------------------------------------
 
 function applyLabels(posts) {
   return posts.map(post => {
     const labels = [];
+    const postUri = postAtUri(post.author.did, post.id);
 
-    // Use explicit isbn/doi fields; fall back to extracting from text for any
-    // posts that still happen to contain identifiers inline.
     const isbns = new Set([
       ...(post.isbn ? [post.isbn] : []),
       ...extractIsbns(post.text),
@@ -403,15 +433,15 @@ function applyLabels(posts) {
       if (book) {
         labels.push({
           labeler: "bookwatcher",
-          val: "bookwatcher",
+          val: "bookwatcher-book",
           isbn,
-          action_url: `/labeler/bookwatcher/post/${post.id}`,
+          action_url: `/labeler/bookwatcher?post=${encodeURIComponent(postUri)}&label=bookwatcher-book`,
         });
         labels.push({
           labeler: "openlibrary",
           val: "openlibrary",
           isbn,
-          action_url: `/labeler/openlibrary/post/${post.id}`,
+          action_url: `/labeler/openlibrary?post=${encodeURIComponent(postUri)}&label=openlibrary`,
         });
       }
     }
@@ -427,9 +457,18 @@ function applyLabels(posts) {
           labeler: "scholarwatch",
           val: "scholarwatch",
           doi,
-          action_url: `/labeler/scholarwatch/post/${post.id}`,
+          action_url: `/labeler/scholarwatch?post=${encodeURIComponent(postUri)}&label=scholarwatch`,
         });
       }
+    }
+
+    // Apply author label if this post's author is a BookWatcher-verified author
+    if (AUTHOR_PROFILES[post.author.did]) {
+      labels.push({
+        labeler: "bookwatcher",
+        val: "bookwatcher-author",
+        action_url: `/labeler/bookwatcher?profile=${encodeURIComponent(profileAtUri(post.author.did))}&label=bookwatcher-author`,
+      });
     }
 
     return { ...post, labels };
@@ -448,25 +487,87 @@ export function getPost(postId) {
   return getFeed().find(p => p.id === postId) ?? null;
 }
 
-export function getLabelDetail(labelerId, postId) {
-  const post = getPost(postId);
+/** Returns the BookWatcher action URL for the first post that has a bookwatcher-book label for the given ISBN. */
+export function getBookActionUrl(isbn) {
+  const posts = getFeed();
+  for (const post of posts) {
+    const label = post.labels.find(l => l.labeler === 'bookwatcher' && l.val === 'bookwatcher-book' && l.isbn === isbn);
+    if (label) return label.action_url;
+  }
+  return null;
+}
+
+/** Look up enriched label detail by labeler, post AT URI, and label value. */
+export function getLabelDetail(labelerId, atUri, labelVal) {
+  const match = atUri.match(/^at:\/\/(did:[^/]+)\/app\.bsky\.feed\.post\/(.+)$/);
+  if (!match) return null;
+  const [, , rkey] = match;
+
+  const post = getPost(rkey);
   if (!post) return null;
 
   const labeler = LABELERS[labelerId];
   if (!labeler) return null;
 
-  const label = post.labels.find(l => l.labeler === labelerId);
+  const label = post.labels.find(l => l.labeler === labelerId && l.val === labelVal);
   if (!label) return null;
 
   const detail = { post, labeler, label, labeler_id: labelerId };
 
-  if (labelerId === "bookwatcher" || labelerId === "openlibrary") {
+  if (labelVal === "bookwatcher-book" || labelerId === "openlibrary") {
     detail.book = BOOKS[label.isbn] ?? null;
+    if (detail.book?.author_did) {
+      detail.authorProfile = AUTHOR_PROFILES[detail.book.author_did] ?? null;
+    }
   }
-
   if (labelerId === "scholarwatch") {
     detail.paper = PAPERS[label.doi] ?? null;
   }
 
   return detail;
+}
+
+/** Look up enriched author profile detail by labeler, profile AT URI, and label value. */
+export function getProfileLabelDetail(labelerId, atUri, labelVal) {
+  const match = atUri.match(/^at:\/\/(did:.+)$/);
+  if (!match) return null;
+  const [, did] = match;
+
+  const labeler = LABELERS[labelerId];
+  if (!labeler) return null;
+
+  const author = AUTHOR_PROFILES[did];
+  if (!author) return null;
+
+  const label = {
+    labeler: labelerId,
+    val: labelVal,
+    action_url: `/labeler/${labelerId}?profile=${encodeURIComponent(atUri)}&label=${labelVal}`,
+  };
+
+  const authorBooks = (author.books ?? []).map(isbn => {
+    const book = BOOKS[isbn];
+    if (!book) return null;
+    return { ...book, bookwatcher_url: getBookActionUrl(isbn) };
+  }).filter(Boolean);
+
+  return { labeler, label, author, labeler_id: labelerId, authorBooks };
+}
+
+/** Look up a profile by handle (for Skyline profile pages). */
+export function getProfile(handle) {
+  return Object.values(AUTHOR_PROFILES).find(p => p.handle === handle) ?? null;
+}
+
+/** Get labels applied to a profile DID. */
+export function getProfileLabels(did) {
+  const labels = [];
+  if (AUTHOR_PROFILES[did]) {
+    labels.push({
+      labeler: "bookwatcher",
+      val: "bookwatcher-author",
+      action_url: `/labeler/bookwatcher?profile=${encodeURIComponent(profileAtUri(did))}&label=bookwatcher-author`,
+    });
+  }
+  return labels;
 }
