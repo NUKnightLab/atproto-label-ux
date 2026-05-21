@@ -1,6 +1,6 @@
 export const sketchConfig = {
   title: 'Labels beyond Moderation',
-  lede: 'A prototype exploring how AT Protocol labelers could provide much richer experience beyond content warnings.',
+  lede: 'A UX sketch exploring how AT Protocol labelers could provide much richer experience beyond content warnings.',
   callout: '',
   sections: [
     { id: 'this-page', header: 'This page', thisPage: true },

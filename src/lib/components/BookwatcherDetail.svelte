@@ -18,7 +18,7 @@
 <SketchBanner sketch={sketchConfig} showBack={true} backLabel="← Skyline">
   {#snippet thisPage()}
     <p>BookWatcher's enriched view for a post mentioning <strong>{book.title}</strong>.</p>
-    <p>Arrived by following BookWatcher's <strong>action URL</strong> from a <code>bookwatcher-book</code> label. The action URL carries the post's AT Protocol URI as a <code>?post=</code> query parameter, and the label value as <code>?label=</code>.</p>
+    <p>Arrived by following BookWatcher's <strong>action URL</strong> from a <code>bookwatcher-book</code> label. The action URL carries the post's AT Protocol URI as a <code>post=</code> query parameter, and the label value as <code>label=</code>.</p>
     <p><code>src: {labeler.id}</code> · <code>val: {label.val}</code> · <code>isbn: {label.isbn}</code></p>
   {/snippet}
 </SketchBanner>
