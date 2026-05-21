@@ -14,9 +14,8 @@
 
 <SketchBanner sketch={sketchConfig} showBack={true} backLabel="← Skyline">
   {#snippet thisPage()}
-    <p>Open Library's record for this edition of <strong>{book.title}</strong>.</p>
-    <p>Arrived by following an AT Protocol <strong>action URL</strong> embedded in an <code>openlibrary</code> label — the label identified an ISBN in the post; this page was generated from that ISBN.</p>
-    <p><code>src: {labeler.id}</code> · <code>val: {label.val}</code> · <code>isbn: {label.isbn}</code></p>
+    <p>This page was arrived at by following an AT Protocol <strong>action URL</strong> defined for the <code>openlibrary</code> labeller. The action URL gets two parameters that were already known by the previous page: <em>what was labeled</em> (a specific post) and <em>how it was labeled by this labeler</em> (<code>{label.val}</code>).</p>
+    <p>The labeler looks up the post to see "why" it applied a label: in this case, because it determined that the post referenced a specific book,      <strong>{book.title}</strong>. It shows the information it has about that book.</p>
   {/snippet}
 </SketchBanner>
 

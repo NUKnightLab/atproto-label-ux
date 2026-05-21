@@ -3,13 +3,11 @@
   import { marked } from 'marked';
   import { onMount } from 'svelte';
 
-  import { sectionContent } from './content/index.js';
-
-  function sectionBody(id) {
-    return sectionContent[id] ? marked(sectionContent[id]) : '';
-  }
-
   let { sketch, showBack = false, backLabel = '← Back', backHref = '/', thisPage = undefined } = $props();
+
+  function sectionBody(content) {
+    return content ? marked(content) : '';
+  }
   let drawerOpen = $state(false);
   let openSection = $state('this-page');
   let lightboxOpen = $state(false);
@@ -53,7 +51,7 @@
      onclick={() => lightboxOpen = false} onkeydown={(e) => e.key === 'Escape' && (lightboxOpen = false)}></div>
 <div class="lb-box" transition:fly={{ y: -20, duration: 250, opacity: 0 }} role="dialog" aria-modal="true">
   <div class="lb-body">
-    {@html sectionBody('welcome')}
+    {@html sectionBody(sketch.welcome)}
   </div>
   <div class="lb-footer">
     <button class="lb-dismiss" data-real onclick={() => lightboxOpen = false}>Got it</button>
@@ -72,7 +70,9 @@
   <div class="sb-body">
     <p class="sb-lede">
       {sketch.lede}
-      <button class="sb-more" data-real title="Overview" onclick={() => lightboxOpen = true}>more</button>
+      {#if sketch.welcome}
+        <button class="sb-more" data-real title="Overview" onclick={() => lightboxOpen = true}>more</button>
+      {/if}
     </p>
     {#if sketch.callout}
       <div class="sb-callout">{sketch.callout}</div>
@@ -92,7 +92,7 @@
           {#if section.thisPage}
             {@render thisPage()}
           {:else}
-            {@html sectionBody(section.id)}
+            {@html sectionBody(section.content)}
           {/if}
         </div>
         {/if}
