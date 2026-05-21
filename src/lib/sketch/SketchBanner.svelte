@@ -3,6 +3,13 @@
   import { marked } from 'marked';
   import { onMount } from 'svelte';
 
+  function handleKeydown(e) {
+    if (e.key === 'Escape') {
+      if (lightboxOpen) lightboxOpen = false;
+      else if (drawerOpen) drawerOpen = false;
+    }
+  }
+
   let { sketch, showBack = false, backLabel = '← Back', backHref = '/', thisPage = undefined } = $props();
 
   function sectionBody(content) {
@@ -12,13 +19,20 @@
   let openSection = $state('this-page');
   let lightboxOpen = $state(false);
 
-  const STORAGE_SEEN = 'atproto-label-ux-drawer-seen';
-
   onMount(() => {
-    if (!sessionStorage.getItem(STORAGE_SEEN)) {
+    const sketchKey = sketch.title
+      ? sketch.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      : null;
+    if (!sketchKey) {
       drawerOpen = true;
       openSection = 'this-page';
-      sessionStorage.setItem(STORAGE_SEEN, '1');
+      return;
+    }
+    const key = `atproto-label-ux-drawer-seen:${sketchKey}`;
+    if (!sessionStorage.getItem(key)) {
+      drawerOpen = true;
+      openSection = 'this-page';
+      sessionStorage.setItem(key, '1');
     }
   });
 
@@ -32,6 +46,8 @@
   }
 </script>
 
+<svelte:window onkeydown={handleKeydown} />
+
 <div class="sb-bar">
   <span class="sb-left">
     {#if showBack}
@@ -39,7 +55,11 @@
     {/if}
   </span>
   <button class="sb-center" data-real onclick={openDrawer}>
-    {sketch.title}
+    {#if sketch.title}
+      {sketch.title}
+    {:else}
+      <span class="sb-missing-title">⚠ sketch.title is missing</span>
+    {/if}
     <span class="sb-info">ⓘ</span>
   </button>
   <span class="sb-right"></span>
@@ -158,6 +178,7 @@
     transition: opacity .15s;
   }
   .sb-center:hover { opacity: .7; }
+  .sb-missing-title { font-style: italic; opacity: .7; }
 
   .sb-info {
     font-size: 11px;
