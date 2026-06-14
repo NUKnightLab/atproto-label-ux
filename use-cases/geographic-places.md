@@ -1,6 +1,6 @@
 # Use Case: Geographic Places
 
-*Status: not yet built. This document is a design sketch — it's more speculative than the book and paper cases. The identifier problem is harder here.*
+*Status: not yet built. This document is a design sketch — it's more speculative than the book and paper cases. Geography is fuzzier in many ways that make it trickier. Although, fwiw, [atls.city](https://atls.city/) was one of the labelers that triggered this whole exercise, with me wanting to "dereference" labels they apply. A lot of the below is Claude-extrapolation and it misses a lot of the nuance. I hope to clean it up some but geographic use cases get complicated fast.*
 
 ---
 
@@ -19,8 +19,8 @@ ISBNs and DOIs exist as part of formal registration systems. A book has one (or 
 Place identifiers are messier:
 
 - **Multiple competing systems:** Wikidata QIDs (Q1297 for Chicago), OpenStreetMap relation IDs, Geonames IDs, What3Words, Plus Codes, FIPS codes... none is universally authoritative.
-- **Granularity is ambiguous:** "Chicago" is a city, but also "Logan Square" is a neighborhood, and "the corner of Milwaukee and North" is a point. These are related but distinct.
-- **How do you detect place references in text?** You can't regex for them the way you can regex for an ISBN. Named Entity Recognition is probabilistic. "Springfield" could be Illinois, Massachusetts, or the Simpsons' hometown.
+- **Granularity is ambiguous:** "Chicago" is a city, but also "Logan Square" is a neighborhood, and "the corner of Milwaukee and Western" is a point. These are related but distinct.
+- **How do you detect place references in text?** for purposes of this demo, we'You can't regex for them the way you can regex for an ISBN. Named Entity Recognition is probabilistic. "Springfield" could be Illinois, Massachusetts, or the Simpsons' hometown.
 - **Profile-level vs. post-level:** A user's location is often on their *profile*, not in individual posts. Labels can apply to profiles (any AT Protocol record) as well as posts — but most of the UI conversation so far has been post-centric.
 
 ---
